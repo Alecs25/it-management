@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/database/prisma";
 import { authService } from "@/lib/services/auth-service";
-import { isAppConfigured } from "@/lib/setup/setup-service";
+import { getSetupPrerequisites, isAppConfigured } from "@/lib/setup/setup-service";
 
 export const runtime = "nodejs";
 
@@ -14,6 +14,17 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const prerequisites = await getSetupPrerequisites();
+  if (!prerequisites.ready) {
+    return NextResponse.json(
+      {
+        message: "Setup prerequisites not satisfied",
+        prerequisites,
+      },
+      { status: 412 }
+    );
+  }
+
   const configured = await isAppConfigured();
   if (configured) {
     return NextResponse.json({ message: "Application already configured" }, { status: 409 });

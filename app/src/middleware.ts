@@ -17,6 +17,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const setupPath = pathname.startsWith("/setup");
+  const prerequisitesPath = pathname.startsWith("/setup/prerequisites");
   const status = await fetch(new URL("/api/setup/status", req.url), {
     cache: "no-store",
     headers: {
@@ -25,7 +26,15 @@ export async function middleware(req: NextRequest) {
   }).then((res) => (res.ok ? res.json() : { configured: true }))
     .catch(() => ({ configured: true }));
 
-  if (!status.configured && !setupPath) {
+  if (!status.prerequisitesReady && !prerequisitesPath) {
+    return NextResponse.redirect(new URL("/setup/prerequisites", req.url));
+  }
+
+  if (status.prerequisitesReady && prerequisitesPath && !status.configured) {
+    return NextResponse.redirect(new URL("/setup", req.url));
+  }
+
+  if (status.prerequisitesReady && !status.configured && !setupPath) {
     return NextResponse.redirect(new URL("/setup", req.url));
   }
 

@@ -19,6 +19,10 @@ export default function LoginPage() {
       .then((res) => res.json())
       .then((data) => {
         if (!active) return;
+        if (!data?.prerequisitesReady) {
+          router.replace("/setup/prerequisites");
+          return;
+        }
         if (!data?.configured) {
           router.replace("/setup");
         }
