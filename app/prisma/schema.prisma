@@ -1,0 +1,139 @@
+// IT Credential Management — Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String    @id @default(uuid()) @db.VarChar(36)
+  email               String    @unique @db.VarChar(255)
+  passwordHash        String    @db.VarChar(255)
+  role                String    @db.VarChar(50)
+  firstName           String?   @db.VarChar(255)
+  lastName            String?   @db.VarChar(255)
+  mfaEnabled          Boolean   @default(false)
+  isActive            Boolean   @default(true)
+  failedLoginAttempts Int       @default(0)
+  lastLoginAt         DateTime?
+  pinHash             String?   @db.VarChar(255)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  mfa         UserMFA[]
+  auditLogs   AuditLog[]
+  credentials Credential[] @relation("LastEditor")
+
+  @@map("users")
+}
+
+model UserMFA {
+  id               String  @id @default(uuid()) @db.VarChar(36)
+  userId           String  @db.VarChar(36)
+  secretCiphertext String  @db.LongText
+  secretIv         String  @db.VarChar(255)
+  secretAuthTag    String  @db.VarChar(255)
+  backupCodeHashes String? @db.LongText
+  keyVersion       Int     @default(1)
+  isActive         Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_mfa")
+}
+
+model Client {
+  id     String  @id @default(uuid()) @db.VarChar(36)
+  name   String  @db.VarChar(255)
+  email  String? @db.VarChar(255)
+  phone  String? @db.VarChar(50)
+  status String  @db.VarChar(50)
+  notes  String? @db.LongText
+
+  sites       Site[]
+  credentials Credential[]
+
+  @@map("clients")
+}
+
+model Site {
+  id           String  @id @default(uuid()) @db.VarChar(36)
+  clientId     String  @db.VarChar(36)
+  name         String  @db.VarChar(255)
+  address      String? @db.VarChar(255)
+  city         String? @db.VarChar(100)
+  postalCode   String? @db.VarChar(20)
+  country      String? @db.VarChar(100)
+  floorplanUrl String? @db.LongText
+  notes        String? @db.LongText
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  devices Device[]
+
+  @@map("sites")
+}
+
+model Device {
+  id           String  @id @default(uuid()) @db.VarChar(36)
+  siteId       String  @db.VarChar(36)
+  name         String  @db.VarChar(255)
+  brand        String? @db.VarChar(255)
+  serial       String? @db.VarChar(255)
+  type         String  @db.VarChar(50)
+  ipLocal      String? @db.VarChar(45)
+  ipPublic     String? @db.VarChar(45)
+  port         Int?
+  dns          String? @db.VarChar(255)
+  credentialId String? @db.VarChar(36)
+  positionX    Float   @default(0)
+  positionY    Float   @default(0)
+  rotation     Float   @default(0)
+  notes        String? @db.LongText
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("devices")
+}
+
+model Credential {
+  id                 String  @id @default(uuid()) @db.VarChar(36)
+  clientId           String  @db.VarChar(36)
+  title              String  @db.VarChar(255)
+  username           String  @db.VarChar(255)
+  passwordCiphertext String  @db.LongText
+  passwordIv         String  @db.VarChar(255)
+  passwordAuthTag    String  @db.VarChar(255)
+  keyVersion         Int     @default(1)
+  notes              String? @db.LongText
+  lastEditorId       String  @db.VarChar(36)
+
+  client     Client @relation(fields: [clientId], references: [id])
+  lastEditor User   @relation("LastEditor", fields: [lastEditorId], references: [id])
+
+  @@map("credentials")
+}
+
+model AuditLog {
+  id            String   @id @db.VarChar(100)
+  timestamp     DateTime @default(now())
+  userId        String   @db.VarChar(36)
+  action        String   @db.VarChar(50)
+  resource      String   @db.VarChar(50)
+  resourceId    String   @db.VarChar(36)
+  oldValue      String?  @db.LongText
+  newValue      String?  @db.LongText
+  ipAddress     String   @db.VarChar(45)
+  userAgent     String?  @db.LongText
+  correlationId String   @db.VarChar(36)
+  status        String   @db.VarChar(20)
+  errorMessage  String?  @db.LongText
+  hmacSignature String   @db.VarChar(64)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
