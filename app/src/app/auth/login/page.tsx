@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +12,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/setup/status", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!active) return;
+        if (!data?.configured) {
+          router.replace("/setup");
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
