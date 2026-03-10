@@ -1,0 +1,48 @@
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+.npm
+.eslintcache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+
+# Logs
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build artifacts
+build/
+out/
+
+# OS specific
+Thumbs.db
+.TrashApp
+
+# Angular
+.angular/
+/dist
+
+# Private keys and secrets
+*.pem
+*.key
+secrets/
