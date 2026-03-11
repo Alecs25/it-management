@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 
-type Client = {
+export type Client = {
   id: string;
   name: string;
   email?: string | null;
@@ -15,7 +15,7 @@ type Client = {
   credentials: Credential[];
 };
 
-type Site = {
+export type Site = {
   id: string;
   name: string;
   address?: string | null;
@@ -24,7 +24,7 @@ type Site = {
   credentials: Credential[];
 };
 
-type Device = {
+export type Device = {
   id: string;
   name: string;
   type: string;
@@ -33,7 +33,7 @@ type Device = {
   siteId?: string | null;
 };
 
-type Credential = {
+export type Credential = {
   id: string;
   title: string;
   username: string;

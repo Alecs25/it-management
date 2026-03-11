@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requirePagePermission } from "@/lib/auth/page-guard";
 import { prisma } from "@/lib/database/prisma";
-import { ClientDetail } from "@/components/features/ClientDetail";
+import { ClientDetail, type Client } from "@/components/features/ClientDetail";
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   await requirePagePermission("client:read");
@@ -53,7 +53,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
 
   return (
     <div className="p-6">
-      <ClientDetail client={client} />
+      <ClientDetail client={client as Client} />
     </div>
   );
 }
