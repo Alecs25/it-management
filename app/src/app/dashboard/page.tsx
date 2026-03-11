@@ -10,12 +10,13 @@ export default async function DashboardPage() {
     redirect("/auth/login");
   }
 
-  const [clientsCount, credentialsCount, devicesCount, sitesCount] = await Promise.all([
-    prisma.client.count(),
-    prisma.credential.count(),
-    prisma.device.count(),
-    prisma.site.count(),
-  ]);
+  const [clientsCount, credentialsCount, devicesCount, sitesCount] =
+    await Promise.all([
+      prisma.client.count(),
+      prisma.credential.count(),
+      prisma.device.count(),
+      prisma.site.count(),
+    ]);
 
   const dashCards = [
     {
@@ -70,8 +71,12 @@ export default async function DashboardPage() {
             className="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
           >
             <div className="card-body">
-              <div className={`w-10 h-10 rounded-lg ${card.bg} flex items-center justify-center mb-2`}>
-                <span className={`text-lg font-bold ${card.color}`}>{card.count}</span>
+              <div
+                className={`w-10 h-10 rounded-lg ${card.bg} flex items-center justify-center mb-2`}
+              >
+                <span className={`text-lg font-bold ${card.color}`}>
+                  {card.count}
+                </span>
               </div>
               <h2 className="card-title text-base">{card.label}</h2>
               <p className="text-sm opacity-60">{card.description}</p>
@@ -82,7 +87,9 @@ export default async function DashboardPage() {
 
       {session.role === "admin" && (
         <div className="alert border border-base-300">
-          <span className="text-sm opacity-70">Conforme ISO 27001 — audit trail + MFA + RBAC.</span>
+          <span className="text-sm opacity-70">
+            Conforme ISO 27001 — audit trail + MFA + RBAC.
+          </span>
           <Link className="btn btn-xs btn-ghost ml-auto" href="/audit">
             Vai all&#39;Audit Log
           </Link>

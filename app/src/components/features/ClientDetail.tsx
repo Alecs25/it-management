@@ -53,9 +53,20 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
     status: client.status,
     notes: client.notes ?? "",
   });
-  const [newSiteForm, setNewSiteForm] = useState({ name: "", address: "", city: "" });
-  const [newDeviceForm, setNewDeviceForm] = useState({ name: "", type: "server", siteId: "" });
-  const [newCredentialForm, setNewCredentialForm] = useState({ credentialId: "", siteId: "" });
+  const [newSiteForm, setNewSiteForm] = useState({
+    name: "",
+    address: "",
+    city: "",
+  });
+  const [newDeviceForm, setNewDeviceForm] = useState({
+    name: "",
+    type: "server",
+    siteId: "",
+  });
+  const [newCredentialForm, setNewCredentialForm] = useState({
+    credentialId: "",
+    siteId: "",
+  });
 
   async function saveClientInfo(e: FormEvent) {
     e.preventDefault();
@@ -80,7 +91,14 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
         ...prev,
         sites: [
           ...prev.sites,
-          { id: data.site.id, name: data.site.name, address: data.site.address, city: data.site.city, devices: [], credentials: [] },
+          {
+            id: data.site.id,
+            name: data.site.name,
+            address: data.site.address,
+            city: data.site.city,
+            devices: [],
+            credentials: [],
+          },
         ],
       }));
       setNewSiteForm({ name: "", address: "", city: "" });
@@ -90,7 +108,10 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
   async function deleteSite(siteId: string) {
     if (!confirm("Elimina questa sede?")) return;
     await fetch(`/api/sites?id=${siteId}`, { method: "DELETE" });
-    setClient((prev) => ({ ...prev, sites: prev.sites.filter((s) => s.id !== siteId) }));
+    setClient((prev) => ({
+      ...prev,
+      sites: prev.sites.filter((s) => s.id !== siteId),
+    }));
   }
 
   async function createDevice(e: FormEvent, siteId?: string) {
@@ -118,10 +139,15 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
       if (siteId) {
         setClient((prev) => ({
           ...prev,
-          sites: prev.sites.map((s) => (s.id === siteId ? { ...s, devices: [...s.devices, newDevice] } : s)),
+          sites: prev.sites.map((s) =>
+            s.id === siteId ? { ...s, devices: [...s.devices, newDevice] } : s,
+          ),
         }));
       } else {
-        setClient((prev) => ({ ...prev, devices: [...prev.devices, newDevice] }));
+        setClient((prev) => ({
+          ...prev,
+          devices: [...prev.devices, newDevice],
+        }));
       }
       setNewDeviceForm({ name: "", type: "server", siteId: "" });
     }
@@ -132,7 +158,10 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
     setClient((prev) => ({
       ...prev,
       devices: prev.devices.filter((d) => d.id !== deviceId),
-      sites: prev.sites.map((s) => ({ ...s, devices: s.devices.filter((d) => d.id !== deviceId) })),
+      sites: prev.sites.map((s) => ({
+        ...s,
+        devices: s.devices.filter((d) => d.id !== deviceId),
+      })),
     }));
   }
 
@@ -151,7 +180,9 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
         ...prev,
         credentials: prev.credentials.filter((c) => c.id !== credId),
         sites: prev.sites.map((s) =>
-          s.id === siteId ? { ...s, credentials: [...s.credentials, { ...cred, siteId }] } : s
+          s.id === siteId
+            ? { ...s, credentials: [...s.credentials, { ...cred, siteId }] }
+            : s,
         ),
       }));
       setNewCredentialForm({ credentialId: "", siteId: "" });
@@ -164,12 +195,17 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: credId, siteId: null }),
     });
-    const cred = client.credentials.concat(...client.sites.flatMap((s) => s.credentials)).find((c) => c.id === credId);
+    const cred = client.credentials
+      .concat(...client.sites.flatMap((s) => s.credentials))
+      .find((c) => c.id === credId);
     if (cred) {
       setClient((prev) => ({
         ...prev,
         credentials: [...prev.credentials, { ...cred, siteId: null }],
-        sites: prev.sites.map((s) => ({ ...s, credentials: s.credentials.filter((c) => c.id !== credId) })),
+        sites: prev.sites.map((s) => ({
+          ...s,
+          credentials: s.credentials.filter((c) => c.id !== credId),
+        })),
       }));
     }
   }
@@ -183,7 +219,10 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-semibold">{client.name}</h1>
-          <Link href="/clients" className="text-sm link link-hover opacity-60 mt-1">
+          <Link
+            href="/clients"
+            className="text-sm link link-hover opacity-60 mt-1"
+          >
             ← Torna ai clienti
           </Link>
         </div>
@@ -209,14 +248,18 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
                 </p>
               )}
               <p>
-                <span className="font-medium">Status:</span> <span className="badge">{client.status}</span>
+                <span className="font-medium">Status:</span>{" "}
+                <span className="badge">{client.status}</span>
               </p>
               {client.notes && (
                 <p>
                   <span className="font-medium">Note:</span> {client.notes}
                 </p>
               )}
-              <button className="btn btn-sm btn-outline mt-3" onClick={() => setIsEditingInfo(true)}>
+              <button
+                className="btn btn-sm btn-outline mt-3"
+                onClick={() => setIsEditingInfo(true)}
+              >
                 Modifica
               </button>
             </div>
@@ -225,33 +268,59 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
               <input
                 className="input input-bordered input-sm w-full"
                 value={clientForm.name}
-                onChange={(e) => setClientForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setClientForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
               <input
                 className="input input-bordered input-sm w-full"
                 type="email"
                 placeholder="Email"
                 value={clientForm.email}
-                onChange={(e) => setClientForm((f) => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setClientForm((f) => ({ ...f, email: e.target.value }))
+                }
               />
               <input
                 className="input input-bordered input-sm w-full"
                 placeholder="Telefono"
                 value={clientForm.phone}
-                onChange={(e) => setClientForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setClientForm((f) => ({ ...f, phone: e.target.value }))
+                }
               />
-              <select className="select select-bordered select-sm w-full" value={clientForm.status} onChange={(e) => setClientForm((f) => ({ ...f, status: e.target.value as any }))}>
+              <select
+                className="select select-bordered select-sm w-full"
+                value={clientForm.status}
+                onChange={(e) =>
+                  setClientForm((f) => ({
+                    ...f,
+                    status: e.target.value as any,
+                  }))
+                }
+              >
                 <option value="onboarding">onboarding</option>
                 <option value="operativo">operativo</option>
                 <option value="review">review</option>
                 <option value="rischio">rischio</option>
               </select>
-              <textarea className="textarea textarea-bordered w-full" placeholder="Note" value={clientForm.notes} onChange={(e) => setClientForm((f) => ({ ...f, notes: e.target.value }))} />
+              <textarea
+                className="textarea textarea-bordered w-full"
+                placeholder="Note"
+                value={clientForm.notes}
+                onChange={(e) =>
+                  setClientForm((f) => ({ ...f, notes: e.target.value }))
+                }
+              />
               <div className="flex gap-2">
                 <button className="btn btn-sm btn-primary" type="submit">
                   Salva
                 </button>
-                <button className="btn btn-sm btn-ghost" type="button" onClick={() => setIsEditingInfo(false)}>
+                <button
+                  className="btn btn-sm btn-ghost"
+                  type="button"
+                  onClick={() => setIsEditingInfo(false)}
+                >
                   Annulla
                 </button>
               </div>
@@ -265,14 +334,39 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
         <h2 className="text-xl font-semibold">Sedi</h2>
 
         {/* Create Site Form */}
-        <form onSubmit={createSite} className="card bg-base-100 border border-base-300">
+        <form
+          onSubmit={createSite}
+          className="card bg-base-100 border border-base-300"
+        >
           <div className="card-body">
             <h3 className="card-title text-base">Aggiungi Nuova Sede</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <input className="input input-bordered" placeholder="Nome sede" value={newSiteForm.name} onChange={(e) => setNewSiteForm((f) => ({ ...f, name: e.target.value }))} required />
-              <input className="input input-bordered" placeholder="Indirizzo" value={newSiteForm.address} onChange={(e) => setNewSiteForm((f) => ({ ...f, address: e.target.value }))} />
+              <input
+                className="input input-bordered"
+                placeholder="Nome sede"
+                value={newSiteForm.name}
+                onChange={(e) =>
+                  setNewSiteForm((f) => ({ ...f, name: e.target.value }))
+                }
+                required
+              />
+              <input
+                className="input input-bordered"
+                placeholder="Indirizzo"
+                value={newSiteForm.address}
+                onChange={(e) =>
+                  setNewSiteForm((f) => ({ ...f, address: e.target.value }))
+                }
+              />
               <div className="flex gap-2">
-                <input className="input input-bordered flex-1" placeholder="Città" value={newSiteForm.city} onChange={(e) => setNewSiteForm((f) => ({ ...f, city: e.target.value }))} />
+                <input
+                  className="input input-bordered flex-1"
+                  placeholder="Città"
+                  value={newSiteForm.city}
+                  onChange={(e) =>
+                    setNewSiteForm((f) => ({ ...f, city: e.target.value }))
+                  }
+                />
                 <button className="btn btn-primary" type="submit">
                   +
                 </button>
@@ -288,34 +382,64 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
           </div>
         ) : (
           client.sites.map((site) => (
-            <div key={site.id} className="card bg-base-100 border border-base-300">
+            <div
+              key={site.id}
+              className="card bg-base-100 border border-base-300"
+            >
               <div className="card-body">
                 <button
-                  onClick={() => setExpandedSites((s) => (s.includes(site.id) ? s.filter((x) => x !== site.id) : [...s, site.id]))}
+                  onClick={() =>
+                    setExpandedSites((s) =>
+                      s.includes(site.id)
+                        ? s.filter((x) => x !== site.id)
+                        : [...s, site.id],
+                    )
+                  }
                   className="flex items-center justify-between w-full text-left"
                 >
                   <div>
                     <h3 className="card-title text-base">{site.name}</h3>
-                    {site.address && <p className="text-sm opacity-60">{site.address}, {site.city}</p>}
+                    {site.address && (
+                      <p className="text-sm opacity-60">
+                        {site.address}, {site.city}
+                      </p>
+                    )}
                   </div>
-                  <span className="text-lg opacity-60">{expandedSites.includes(site.id) ? "▼" : "▶"}</span>
+                  <span className="text-lg opacity-60">
+                    {expandedSites.includes(site.id) ? "▼" : "▶"}
+                  </span>
                 </button>
 
                 {expandedSites.includes(site.id) && (
                   <div className="mt-4 space-y-4 border-t pt-4">
                     {/* Devices in Site */}
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Device ({site.devices.length})</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        Device ({site.devices.length})
+                      </h4>
                       {site.devices.length === 0 ? (
-                        <p className="text-xs opacity-60">Nessun device in questa sede.</p>
+                        <p className="text-xs opacity-60">
+                          Nessun device in questa sede.
+                        </p>
                       ) : (
                         <div className="space-y-1">
                           {site.devices.map((device) => (
-                            <div key={device.id} className="flex items-center justify-between bg-base-200 p-2 rounded text-sm">
+                            <div
+                              key={device.id}
+                              className="flex items-center justify-between bg-base-200 p-2 rounded text-sm"
+                            >
                               <div>
-                                <span className="font-medium">{device.name}</span> <span className="opacity-60">({device.type})</span>
+                                <span className="font-medium">
+                                  {device.name}
+                                </span>{" "}
+                                <span className="opacity-60">
+                                  ({device.type})
+                                </span>
                               </div>
-                              <button className="btn btn-xs btn-error" onClick={() => deleteDevice(device.id)}>
+                              <button
+                                className="btn btn-xs btn-error"
+                                onClick={() => deleteDevice(device.id)}
+                              >
                                 Rimuovi
                               </button>
                             </div>
@@ -326,17 +450,32 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
 
                     {/* Credentials in Site */}
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">Credenziali ({site.credentials.length})</h4>
+                      <h4 className="font-semibold text-sm mb-2">
+                        Credenziali ({site.credentials.length})
+                      </h4>
                       {site.credentials.length === 0 ? (
-                        <p className="text-xs opacity-60">Nessuna credenziale in questa sede.</p>
+                        <p className="text-xs opacity-60">
+                          Nessuna credenziale in questa sede.
+                        </p>
                       ) : (
                         <div className="space-y-1">
                           {site.credentials.map((cred) => (
-                            <div key={cred.id} className="flex items-center justify-between bg-base-200 p-2 rounded text-sm">
+                            <div
+                              key={cred.id}
+                              className="flex items-center justify-between bg-base-200 p-2 rounded text-sm"
+                            >
                               <div>
-                                <span className="font-medium">{cred.title}</span> <span className="opacity-60">({cred.username})</span>
+                                <span className="font-medium">
+                                  {cred.title}
+                                </span>{" "}
+                                <span className="opacity-60">
+                                  ({cred.username})
+                                </span>
                               </div>
-                              <button className="btn btn-xs btn-error" onClick={() => unlinkCredential(cred.id)}>
+                              <button
+                                className="btn btn-xs btn-error"
+                                onClick={() => unlinkCredential(cred.id)}
+                              >
                                 Scollega
                               </button>
                             </div>
@@ -349,7 +488,10 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
 
                 {/* Delete Button */}
                 <div className="flex gap-2 justify-end pt-2">
-                  <button className="btn btn-sm btn-error btn-ghost" onClick={() => deleteSite(site.id)}>
+                  <button
+                    className="btn btn-sm btn-error btn-ghost"
+                    onClick={() => deleteSite(site.id)}
+                  >
                     Elimina Sede
                   </button>
                 </div>
@@ -363,10 +505,14 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
       {(unassignedDeviceCount > 0 || unassignedCredentialCount > 0) && (
         <div className="card bg-base-100 border border-base-300 border-dashed">
           <div className="card-body">
-            <h3 className="card-title text-base">Non Assegnati (senza sede specifica)</h3>
+            <h3 className="card-title text-base">
+              Non Assegnati (senza sede specifica)
+            </h3>
             {unassignedDeviceCount > 0 && (
               <div>
-                <h4 className="font-semibold text-sm mb-2">Device ({unassignedDeviceCount})</h4>
+                <h4 className="font-semibold text-sm mb-2">
+                  Device ({unassignedDeviceCount})
+                </h4>
                 {client.devices.map((device) => (
                   <div key={device.id} className="text-sm opacity-70">
                     {device.name}
@@ -376,7 +522,9 @@ export function ClientDetail({ client: initialClient }: { client: Client }) {
             )}
             {unassignedCredentialCount > 0 && (
               <div>
-                <h4 className="font-semibold text-sm mb-2">Credenziali ({unassignedCredentialCount})</h4>
+                <h4 className="font-semibold text-sm mb-2">
+                  Credenziali ({unassignedCredentialCount})
+                </h4>
                 {client.credentials.map((cred) => (
                   <div key={cred.id} className="text-sm opacity-70">
                     {cred.title}
