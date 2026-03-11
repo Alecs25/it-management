@@ -46,6 +46,9 @@ export async function POST(req: NextRequest) {
   const response = NextResponse.json({
     message: "Login successful, MFA required",
     requiresMFA: true,
+    mfaEnrolled: user.mfaEnabled,
+    userId: user.id,
+    email: user.email,
   });
 
   setAuthCookie(response, token);

@@ -1,4 +1,4 @@
-// IT Credential Management — Prisma Schema
+// IT Credential Management  Prisma Schema
 
 generator client {
   provider = "prisma-client-js"
