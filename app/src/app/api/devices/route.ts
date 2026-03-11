@@ -8,7 +8,8 @@ import { writeAuditLog } from "@/lib/services/audit-db";
 export const runtime = "nodejs";
 
 const createSchema = z.object({
-  siteId: z.string().uuid(),
+  clientId: z.string().uuid(),
+  siteId: z.string().uuid().optional().nullable(),
   name: z.string().min(1),
   type: z.string().min(1),
   brand: z.string().optional(),
@@ -22,6 +23,7 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   id: z.string().uuid(),
+  siteId: z.string().uuid().optional().nullable(),
   name: z.string().min(1).optional(),
   type: z.string().min(1).optional(),
   brand: z.string().optional(),
@@ -43,10 +45,14 @@ export async function GET(req: NextRequest) {
   if (!auth.ok) return NextResponse.json({ message: auth.message }, { status: auth.status });
 
   const siteId = req.nextUrl.searchParams.get("siteId") ?? undefined;
+  const clientId = req.nextUrl.searchParams.get("clientId") ?? undefined;
 
   const devices = await prisma.device.findMany({
-    where: siteId ? { siteId } : undefined,
-    include: { site: { select: { id: true, name: true, clientId: true } } },
+    where: clientId ? { clientId } : siteId ? { siteId } : undefined,
+    include: {
+      client: { select: { id: true, name: true } },
+      site: { select: { id: true, name: true, clientId: true } },
+    },
     orderBy: { name: "asc" },
   });
 
@@ -70,7 +76,17 @@ export async function POST(req: NextRequest) {
 
   const created = await prisma.device.create({
     data: {
-      ...parsed.data,
+      clientId: parsed.data.clientId,
+      siteId: parsed.data.siteId ?? null,
+      name: parsed.data.name,
+      type: parsed.data.type,
+      brand: parsed.data.brand,
+      serial: parsed.data.serial,
+      ipLocal: parsed.data.ipLocal,
+      ipPublic: parsed.data.ipPublic,
+      port: parsed.data.port,
+      dns: parsed.data.dns,
+      notes: parsed.data.notes,
       positionX: 0,
       positionY: 0,
       rotation: 0,
@@ -108,12 +124,15 @@ export async function PATCH(req: NextRequest) {
   }
 
   const { id, ...updateData } = parsed.data;
+  const safeUpdateData: Record<string, unknown> = { ...updateData };
+  if ("siteId" in parsed.data) safeUpdateData.siteId = parsed.data.siteId ?? null;
+
   const existing = await prisma.device.findUnique({ where: { id } });
   if (!existing) {
     return NextResponse.json({ message: "Device not found" }, { status: 404 });
   }
 
-  const updated = await prisma.device.update({ where: { id }, data: updateData });
+  const updated = await prisma.device.update({ where: { id }, data: safeUpdateData });
 
   await writeAuditLog({
     userId: auth.session.userId,

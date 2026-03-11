@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { getSession } from "@/lib/auth/session";
+import { Sidebar } from "@/components/ui/Sidebar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,8 +30,23 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AppShell>{children}</AppShell>
       </body>
     </html>
+  );
+}
+
+async function AppShell({ children }: { children: React.ReactNode }) {
+  const session = await getSession();
+  if (!session?.mfa) {
+    return <>{children}</>;
+  }
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar userEmail={session.email} userRole={session.role} />
+      <main className="flex-1 overflow-auto bg-base-200">
+        {children}
+      </main>
+    </div>
   );
 }
