@@ -43,7 +43,7 @@ body {
   .input,
   .select,
   .textarea {
-    @apply bg-base-100 text-base-content border-base-400 placeholder:text-base-content/60;
+    @apply bg-base-100 text-base-content border-base-300;
   }
 
   .input:focus,
