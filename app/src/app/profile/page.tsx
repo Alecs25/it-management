@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import { MFASettings } from "@/components/features/MFASettings";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
   const session = await getSession();
 
-  if (!session?.mfa) {
+  if (!session) {
     redirect("/auth/login");
   }
 
@@ -38,6 +39,9 @@ export default async function ProfilePage() {
 
       {/* PIN Setup */}
       <PINSection />
+
+      {/* MFA Setup */}
+      <MFASettings />
     </div>
   );
 }

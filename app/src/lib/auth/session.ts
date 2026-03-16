@@ -52,7 +52,7 @@ export async function getSession(): Promise<JWTPayload | null> {
 
 export async function requireSession(): Promise<JWTPayload> {
   const session = await getSession();
-  if (!session || !session.mfa) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
   return session;

@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 const COOKIE_NAME = "auth_token";
 
 const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/sites", "/credentials", "/devices", "/audit"];
-const AUTH_PATHS = ["/auth/login", "/auth/mfa-enroll"];
+const AUTH_PATHS = ["/auth/login"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -40,15 +40,8 @@ export async function middleware(req: NextRequest) {
     );
     const { payload } = await jwtVerify(token, secret);
 
-    const mfa = payload.mfa as boolean;
-
-    // Trying to access dashboard without full MFA
-    if (isProtected && !mfa) {
-      return NextResponse.redirect(new URL("/auth/mfa-enroll", req.url));
-    }
-
-    // Already fully authenticated — redirect away from auth pages
-    if (isAuthPath && mfa) {
+    // Already authenticated — redirect away from login page
+    if (isAuthPath) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 

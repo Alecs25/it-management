@@ -52,7 +52,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/auth/mfa-enroll");
+      router.push("/dashboard");
     } finally {
       setLoading(false);
     }

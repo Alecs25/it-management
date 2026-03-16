@@ -12,7 +12,7 @@ export function getRequestMeta(req: NextRequest) {
 
 export function requireSessionAndPermission(req: NextRequest, action: string) {
   const session = verifyTokenFromRequest(req);
-  if (!session || !session.mfa) {
+  if (!session) {
     return { ok: false as const, status: 401, message: "Unauthorized" };
   }
 

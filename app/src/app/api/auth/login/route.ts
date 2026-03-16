@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
   const refreshToken = authService.generateRefreshToken(user.id);
 
   const response = NextResponse.json({
-    message: "Login successful, MFA required",
-    requiresMFA: true,
+    message: "Login successful",
+    requiresMFA: false,
     mfaEnrolled: user.mfaEnabled,
     userId: user.id,
     email: user.email,

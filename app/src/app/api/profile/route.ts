@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, email: true, firstName: true, lastName: true, role: true, pinHash: true },
+    select: { id: true, email: true, firstName: true, lastName: true, role: true, pinHash: true, mfaEnabled: true },
   });
 
   if (!user) {
@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
     lastName: user.lastName,
     role: user.role,
     hasPIN: !!user.pinHash,
+    mfaEnabled: user.mfaEnabled,
   });
 }
 

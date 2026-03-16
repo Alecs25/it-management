@@ -16,7 +16,7 @@ export default async function Home() {
   }
 
   const session = await getSession();
-  if (session?.mfa) {
+  if (session) {
     redirect("/dashboard");
   }
   redirect("/auth/login");

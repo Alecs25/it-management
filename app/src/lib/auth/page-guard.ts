@@ -4,7 +4,7 @@ import { rbacService, Role } from "@/lib/services/rbac-service";
 
 export async function requirePagePermission(action: string) {
   const session = await getSession();
-  if (!session?.mfa) {
+  if (!session) {
     redirect("/auth/login");
   }
 
