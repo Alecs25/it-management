@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/database/prisma";
 import { requirePagePermission } from "@/lib/auth/page-guard";
 
@@ -16,16 +15,10 @@ export default async function AuditPage() {
   type AuditRow = (typeof logs)[number];
 
   return (
-    <main className="min-h-screen bg-base-200 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Audit Log</h1>
-          <Link className="btn btn-outline btn-sm" href="/dashboard">
-            Dashboard
-          </Link>
-        </div>
+    <div className="p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Audit Log</h1>
 
-        <div className="overflow-x-auto bg-base-100 border border-base-300 rounded-box">
+      <div className="overflow-x-auto bg-base-100 border border-base-300 rounded-box">
           <table className="table table-xs">
             <thead>
               <tr>
@@ -51,7 +44,6 @@ export default async function AuditPage() {
             </tbody>
           </table>
         </div>
-      </div>
-    </main>
+    </div>
   );
 }

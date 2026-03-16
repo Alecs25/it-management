@@ -56,6 +56,7 @@ model Client {
 
   sites       Site[]
   credentials Credential[]
+  devices     Device[]
 
   @@map("clients")
 }
@@ -71,15 +72,17 @@ model Site {
   floorplanUrl String? @db.LongText
   notes        String? @db.LongText
 
-  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  devices Device[]
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  devices     Device[]
+  credentials Credential[]
 
   @@map("sites")
 }
 
 model Device {
   id           String  @id @default(uuid()) @db.VarChar(36)
-  siteId       String  @db.VarChar(36)
+  clientId     String  @db.VarChar(36)
+  siteId       String? @db.VarChar(36)
   name         String  @db.VarChar(255)
   brand        String? @db.VarChar(255)
   serial       String? @db.VarChar(255)
@@ -94,7 +97,8 @@ model Device {
   rotation     Float   @default(0)
   notes        String? @db.LongText
 
-  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  site   Site?  @relation(fields: [siteId], references: [id], onDelete: SetNull)
 
   @@map("devices")
 }
@@ -102,6 +106,7 @@ model Device {
 model Credential {
   id                 String  @id @default(uuid()) @db.VarChar(36)
   clientId           String  @db.VarChar(36)
+  siteId             String? @db.VarChar(36)
   title              String  @db.VarChar(255)
   username           String  @db.VarChar(255)
   passwordCiphertext String  @db.LongText
@@ -112,6 +117,7 @@ model Credential {
   lastEditorId       String  @db.VarChar(36)
 
   client     Client @relation(fields: [clientId], references: [id])
+  site       Site?  @relation(fields: [siteId], references: [id], onDelete: SetNull)
   lastEditor User   @relation("LastEditor", fields: [lastEditorId], references: [id])
 
   @@map("credentials")

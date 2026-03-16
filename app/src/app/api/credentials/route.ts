@@ -18,6 +18,7 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   id: z.string().uuid(),
+  siteId: z.string().uuid().optional().nullable(),
   title: z.string().min(1).optional(),
   username: z.string().min(1).optional(),
   password: z.string().min(1).optional(),
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest) {
     where: clientId ? { clientId } : undefined,
     include: {
       client: { select: { id: true, name: true } },
+      site: { select: { id: true, name: true } },
       lastEditor: { select: { id: true, email: true } },
     },
     orderBy: { title: "asc" },
@@ -49,11 +51,13 @@ export async function GET(req: NextRequest) {
   const safeCredentials = credentials.map((credentialItem: CredentialWithRelations) => ({
     id: credentialItem.id,
     clientId: credentialItem.clientId,
+    siteId: credentialItem.siteId,
     title: credentialItem.title,
     username: credentialItem.username,
     notes: credentialItem.notes,
     keyVersion: credentialItem.keyVersion,
     client: credentialItem.client,
+    site: credentialItem.site,
     lastEditor: credentialItem.lastEditor,
   }));
 
@@ -131,6 +135,8 @@ export async function PATCH(req: NextRequest) {
     ...rest,
     lastEditorId: auth.session.userId,
   };
+
+  if ("siteId" in parsed.data) updateData.siteId = parsed.data.siteId ?? null;
 
   if (password) {
     const encrypted = cryptoService.encrypt(password);

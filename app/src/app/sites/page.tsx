@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/database/prisma";
 import { requirePagePermission } from "@/lib/auth/page-guard";
 import { SitesManager } from "@/components/features/SitesManager";
@@ -14,17 +13,9 @@ export default async function SitesPage() {
   });
 
   return (
-    <main className="min-h-screen bg-base-200 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Siti</h1>
-          <Link className="btn btn-outline btn-sm" href="/dashboard">
-            Dashboard
-          </Link>
-        </div>
-
-        <SitesManager clients={clients} />
-      </div>
-    </main>
+    <div className="p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Sedi</h1>
+      <SitesManager clients={clients} />
+    </div>
   );
 }

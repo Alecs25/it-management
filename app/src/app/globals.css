@@ -25,3 +25,30 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .btn {
+    @apply font-medium border-base-300;
+  }
+
+  .btn-primary {
+    @apply text-primary-content;
+  }
+
+  .btn-neutral,
+  .btn-error {
+    @apply text-neutral-content;
+  }
+
+  .input,
+  .select,
+  .textarea {
+    @apply bg-base-100 text-base-content border-base-400 placeholder:text-base-content/60;
+  }
+
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
+    @apply border-primary ring-2 ring-primary/20 outline-none;
+  }
+}
