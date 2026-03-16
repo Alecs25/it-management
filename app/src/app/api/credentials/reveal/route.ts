@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/database/prisma";
 import { cryptoService } from "@/lib/services/crypto-service";
-import { mfaService } from "@/lib/services/mfa-service";
+import { authService } from "@/lib/services/auth-service";
 import { checkRateLimit, globalRateLimiter } from "@/lib/middleware/rate-limit";
 import { getRequestMeta, requireSessionAndPermission } from "@/lib/auth/route-auth";
 import { writeAuditLog } from "@/lib/services/audit-db";
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 
 const schema = z.object({
   credentialId: z.string().uuid(),
-  code: z.string().regex(/^\d{6}$/),
+  pin: z.string().regex(/^\d{4}$/),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,22 +29,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Invalid input" }, { status: 400 });
   }
 
-  const mfaConfig = await prisma.userMFA.findFirst({
-    where: { userId: auth.session.userId, isActive: true },
-    orderBy: { id: "desc" },
+  const user = await prisma.user.findUnique({
+    where: { id: auth.session.userId },
+    select: { pinHash: true },
   });
-  if (!mfaConfig) {
-    return NextResponse.json({ message: "MFA not enrolled" }, { status: 400 });
+
+  if (!user?.pinHash) {
+    return NextResponse.json({ message: "PIN not configured" }, { status: 400 });
   }
 
-  const secret = mfaService.decryptMFASecret(
-    mfaConfig.secretCiphertext,
-    mfaConfig.secretIv,
-    mfaConfig.secretAuthTag
-  );
-  const validCode = mfaService.verifyTOTP(secret, parsed.data.code);
-  if (!validCode) {
-    return NextResponse.json({ message: "Invalid MFA code" }, { status: 401 });
+  const validPin = await authService.verifyPassword(parsed.data.pin, user.pinHash);
+  if (!validPin) {
+    return NextResponse.json({ message: "Invalid PIN" }, { status: 401 });
   }
 
   const credential = await prisma.credential.findUnique({ where: { id: parsed.data.credentialId } });

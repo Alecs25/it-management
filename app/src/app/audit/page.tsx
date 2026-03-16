@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/database/prisma";
 import { requirePagePermission } from "@/lib/auth/page-guard";
 
+export const dynamic = "force-dynamic";
+
 export default async function AuditPage() {
   await requirePagePermission("audit:read");
 

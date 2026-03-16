@@ -3,6 +3,8 @@ import { prisma } from "@/lib/database/prisma";
 import { requirePagePermission } from "@/lib/auth/page-guard";
 import { SitesManager } from "@/components/features/SitesManager";
 
+export const dynamic = "force-dynamic";
+
 export default async function SitesPage() {
   await requirePagePermission("site:read");
 
